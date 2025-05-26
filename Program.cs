@@ -4,6 +4,7 @@
     {
         static List<Question> questions = new List<Question>();
         static string filePath = "questions.txt";
+        
 
         static void Main()
         {
@@ -11,10 +12,11 @@
             while (true)
             {
                 Console.Clear();
+                Console.WriteLine("Файл будет сохранён в: " + Path.GetFullPath(filePath));
                 Console.WriteLine("Викторина");
                 Console.WriteLine("1. Начать викторину");
                 Console.WriteLine("2. Добавить вопрос");
-                //Console.WriteLine("3. Сгенерировать случайные вопросы");
+                Console.WriteLine("3. Сгенерировать случайные вопросы");
                 Console.WriteLine("4. Выход");
                 Console.Write("Выберите действие: ");
 
@@ -28,9 +30,9 @@
                     case "2":
                         AddQuestion();
                         break;
-                    //case "3":
-                        //GenerateRandomQuestions();
-                        //break;
+                    case "3":
+                        GenerateRandomQuestions();
+                        break;
                     case "4":
                         return;
                     default:
@@ -58,16 +60,31 @@
             Console.WriteLine("Викторина началась!");
             Console.WriteLine($"Всего доступно вопросов: {questions.Count}");
 
-            // Выбираем 3 сложных и 7 легких вопросов
-            var hardQuestions = questions.Where(q => q.Type == QuestionType.Hard)
-                                       .OrderBy(x => Guid.NewGuid())
-                                       .Take(3)
-                                       .ToList();
+            // Создаем список для сложных вопросов
+            List<Question> hardQuestions = new List<Question>();
+            // Создаем список для легких вопросов
+            List<Question> easyQuestions = new List<Question>();
 
-            var easyQuestions = questions.Where(q => q.Type == QuestionType.Easy)
-                                        .OrderBy(x => Guid.NewGuid())
-                                        .Take(7)
-                                        .ToList();
+            // Перемешиваем все вопросы случайным образом
+            Random random = new Random();
+            var shuffledQuestions = questions.OrderBy(q => random.Next()).ToList();
+
+            // Отбираем вопросы по типам
+            foreach (var question in shuffledQuestions)
+            {
+                if (question.Type == QuestionType.Hard && hardQuestions.Count < 3)
+                {
+                    hardQuestions.Add(question);
+                }
+                else if (question.Type == QuestionType.Easy && easyQuestions.Count < 7)
+                {
+                    easyQuestions.Add(question);
+                }
+
+                // Прерываем цикл, если набрали нужное количество вопросов
+                if (hardQuestions.Count == 3 && easyQuestions.Count == 7)
+                    break;
+            }
 
             var quizQuestions = new List<Question>();
             quizQuestions.AddRange(hardQuestions);
@@ -166,7 +183,7 @@
             Console.WriteLine("Вопрос добавлен!");
         }
 
-        /*static void GenerateRandomQuestions()
+        static void GenerateRandomQuestions()
         {
             Console.Clear();
             Console.Write("Сколько вопросов сгенерировать? ");
@@ -179,7 +196,6 @@
             Console.WriteLine($"Сгенерировано {count} новых вопросов!");
             Console.WriteLine($"Всего вопросов: {questions.Count}");
         }
-        */
 
         static List<Question> QuestionsGenerator(int count)
         {
@@ -188,40 +204,40 @@
 
             // Подготовленные данные для генерации вопросов
             List<string> easyQuestions = new List<string>
-        {
-            "Сколько будет 2+2?",
-            "Как называется столица Франции?",
-            "Какой газ преобладает в атмосфере Земли?",
-            "Кто написал 'Евгения Онегина'?",
-            "Сколько цветов у радуги?"
-        };
+            {
+                "Сколько будет 2+2?",
+                "Как называется столица Франции?",
+                "Какой газ преобладает в атмосфере Земли?",
+                "Кто написал 'Евгения Онегина'?",
+                "Сколько цветов у радуги?"
+            };
 
             List<string> hardQuestions = new List<string>
-        {
-            "В каком году произошла Куликовская битва?",
-            "Какова температура плавления вольфрама?",
-            "Кто открыл закон сохранения энергии?",
-            "Как называется самая длинная река в Южной Америке?",
-            "Какой элемент обозначается химическим символом 'Hg'?"
-        };
+            {
+                "В каком году произошла Куликовская битва?",
+                "Какова температура плавления вольфрама?",
+                "Кто открыл закон сохранения энергии?",
+                "Как называется самая длинная река в Южной Америке?",
+                "Какой элемент обозначается химическим символом 'Hg'?"
+            };
 
             List<List<string>> easyAnswers = new List<List<string>>
-        {
-            new List<string> {"3", "4", "5", "6"},
-            new List<string> {"Лондон", "Берлин", "Париж", "Мадрид"},
-            new List<string> {"Кислород", "Азот", "Углекислый газ", "Водород"},
-            new List<string> {"Пушкин", "Лермонтов", "Толстой", "Достоевский"},
-            new List<string> {"5", "6", "7", "8"}
-        };
+            {
+                new List<string> {"3", "4", "5", "6"},
+                new List<string> {"Лондон", "Берлин", "Париж", "Мадрид"},
+                new List<string> {"Кислород", "Азот", "Углекислый газ", "Водород"},
+                new List<string> {"Пушкин", "Лермонтов", "Толстой", "Достоевский"},
+                new List<string> {"5", "6", "7", "8"}
+            };
 
             List<List<string>> hardAnswers = new List<List<string>>
-        {
-            new List<string> {"1240", "1380", "1480", "1580"},
-            new List<string> {"1000°C", "2000°C", "3000°C", "3422°C"},
-            new List<string> {"Ньютон", "Эйнштейн", "Ломоносов", "Майер"},
-            new List<string> {"Амазонка", "Нил", "Миссисипи", "Конго"},
-            new List<string> {"Золото", "Ртуть", "Серебро", "Гелий"}
-        };
+            {
+                new List<string> {"1240", "1380", "1480", "1580"},
+                new List<string> {"1000°C", "2000°C", "3000°C", "3422°C"},
+                new List<string> {"Ньютон", "Эйнштейн", "Ломоносов", "Майер"},
+                new List<string> {"Амазонка", "Нил", "Миссисипи", "Конго"},
+                new List<string> {"Золото", "Ртуть", "Серебро", "Гелий"}
+            };
 
             // Метод для выбора случайного типа вопроса
             QuestionType GenerateQuestionType()
