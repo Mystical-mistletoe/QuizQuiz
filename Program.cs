@@ -1,4 +1,6 @@
-﻿namespace QuizQuiz
+﻿using System;
+
+namespace QuizQuiz
 {
     class Program
     {
@@ -58,7 +60,7 @@
             }
 
             Console.WriteLine("Викторина началась!");
-            Console.WriteLine($"Всего доступно вопросов: {questions.Count}");
+            Console.WriteLine($"Всего доступно вопросов: {questions.Count + 1}");
 
             // Создаем список для сложных вопросов
             List<Question> hardQuestions = new List<Question>();
@@ -67,7 +69,12 @@
 
             // Перемешиваем все вопросы случайным образом
             Random random = new Random();
-            var shuffledQuestions = questions.OrderBy(q => random.Next()).ToList();
+            int GetRandomValueForSorting<T>(T item)
+            {
+                return random.Next();
+            }
+
+            var shuffledQuestions = questions.OrderBy(GetRandomValueForSorting).ToList();
 
             // Отбираем вопросы по типам
             foreach (var question in shuffledQuestions)
@@ -96,7 +103,7 @@
             foreach (var question in quizQuestions)
             {
                 Console.Clear();
-                Console.WriteLine($"Вопрос {quizQuestions.IndexOf(question) + 1} из {quizQuestions.Count}");
+                Console.WriteLine($"Вопрос {quizQuestions.IndexOf(question) + 1} из {quizQuestions.Count + 1}");
 
                 // Цвет вопроса
                 if (question.Type == QuestionType.Hard)
@@ -141,7 +148,7 @@
 
             Console.Clear();
             Console.WriteLine("=== Результаты викторины ===");
-            Console.WriteLine($"Правильных ответов: {score}/{quizQuestions.Count}");
+            Console.WriteLine($"Правильных ответов: {score}/{quizQuestions.Count + 1}");
             Console.WriteLine($"Набрано баллов: {score}");
             Console.WriteLine("\nНажмите любую клавишу для возврата в меню...");
             Console.ReadKey();
@@ -209,7 +216,9 @@
                 "Как называется столица Франции?",
                 "Какой газ преобладает в атмосфере Земли?",
                 "Кто написал 'Евгения Онегина'?",
-                "Сколько цветов у радуги?"
+                "Сколько цветов у радуги?",
+                "Какой патронус у Гермионы Грейнджер?",
+                "Какой патронус у Гарри Поттера?"
             };
 
             List<string> hardQuestions = new List<string>
@@ -223,11 +232,13 @@
 
             List<List<string>> easyAnswers = new List<List<string>>
             {
-                new List<string> {"3", "4", "5", "6"},
+                new List<string> {"4", "4", "5", "6"},
                 new List<string> {"Лондон", "Берлин", "Париж", "Мадрид"},
                 new List<string> {"Кислород", "Азот", "Углекислый газ", "Водород"},
                 new List<string> {"Пушкин", "Лермонтов", "Толстой", "Достоевский"},
-                new List<string> {"5", "6", "7", "8"}
+                new List<string> {"5", "7", "6", "8"},
+                new List<string> {"сокол", "выдра", "кот", "олень"},
+                new List<string> {"волк", "олень", "кот", "собака"}
             };
 
             List<List<string>> hardAnswers = new List<List<string>>
@@ -270,8 +281,23 @@
 
                 // Перемешиваем ответы, чтобы правильный не всегда был на одном месте
                 string correctAnswer = answers[correctIndex];
-                answers = answers.OrderBy(x => random.Next()).ToList();
-                correctIndex = answers.IndexOf(correctAnswer);
+                for (int j = 0; j < answers.Count; j++)
+                {
+                    int swapIndex = random.Next(answers.Count);
+                    string temp = answers[j];
+                    answers[j] = answers[swapIndex];
+                    answers[swapIndex] = temp;
+                }
+
+                correctIndex = -1;
+                for (int k = 0; k < answers.Count; k++)
+                {
+                    if (answers[k] == correctAnswer)
+                    {
+                        correctIndex = k;
+                        break;
+                    }
+                }
 
                 Question question = new Question(text, answers, correctIndex, type);
                 generatedQuestions.Add(question);
