@@ -112,6 +112,7 @@ namespace QuizQuiz
 
             // Счетчик правильных ответов
             int score = 0;
+            int countBal = 0;
 
             foreach (var question in quizQuestions)
             {
@@ -148,6 +149,7 @@ namespace QuizQuiz
                 {
                     Console.WriteLine("Правильно!");
                     score += question.Type == QuestionType.Hard ? 5 : 1;
+                    countBal += 1;
                 }
                 else
                 {
@@ -161,7 +163,7 @@ namespace QuizQuiz
 
             Console.Clear();
             Console.WriteLine("=== Результаты викторины ===");
-            Console.WriteLine($"Правильных ответов: {score}/{quizQuestions.Count}");
+            Console.WriteLine($"Правильных ответов: {countBal}/{quizQuestions.Count}");
             Console.WriteLine($"Набрано баллов: {score}");
             Console.WriteLine("\nНажмите любую клавишу для возврата в меню...");
             Console.ReadKey();
