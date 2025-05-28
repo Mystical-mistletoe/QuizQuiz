@@ -60,21 +60,27 @@ namespace QuizQuiz
             }
 
             Console.WriteLine("Викторина началась!");
-            Console.WriteLine($"Всего доступно вопросов: {questions.Count + 1}");
+            Console.WriteLine($"Всего доступно вопросов: {questions.Count}");
 
             // Создаем список для сложных вопросов
             List<Question> hardQuestions = new List<Question>();
             // Создаем список для легких вопросов
             List<Question> easyQuestions = new List<Question>();
 
-            // Перемешиваем все вопросы случайным образом
+            // Создаем генератор случайных чисел
             Random random = new Random();
-            int GetRandomValueForSorting<T>(T item)
-            {
-                return random.Next();
-            }
 
-            var shuffledQuestions = questions.OrderBy(GetRandomValueForSorting).ToList();
+            // Перемешиваем вопросы в случайном порядке
+            List<Question> shuffledQuestions = new List<Question>(questions);
+
+            // Простой алгоритм перемешивания
+            for (int i = 0; i < shuffledQuestions.Count; i++)
+            {
+                int randomIndex = random.Next(shuffledQuestions.Count);
+                Question temp = shuffledQuestions[i];
+                shuffledQuestions[i] = shuffledQuestions[randomIndex];
+                shuffledQuestions[randomIndex] = temp;
+            }
 
             // Отбираем вопросы по типам
             foreach (var question in shuffledQuestions)
@@ -92,18 +98,25 @@ namespace QuizQuiz
                 if (hardQuestions.Count == 3 && easyQuestions.Count == 7)
                     break;
             }
-
+            /*
             var quizQuestions = new List<Question>();
             quizQuestions.AddRange(hardQuestions);
             quizQuestions.AddRange(easyQuestions);
             quizQuestions = quizQuestions.OrderBy(x => Guid.NewGuid()).ToList();
+            */
 
+            // Объединяем вопросы (сначала сложные, потом легкие)
+            List<Question> quizQuestions = new List<Question>();
+            quizQuestions.AddRange(hardQuestions);
+            quizQuestions.AddRange(easyQuestions);
+
+            // Счетчик правильных ответов
             int score = 0;
 
             foreach (var question in quizQuestions)
             {
                 Console.Clear();
-                Console.WriteLine($"Вопрос {quizQuestions.IndexOf(question) + 1} из {quizQuestions.Count + 1}");
+                Console.WriteLine($"Вопрос {quizQuestions.IndexOf(question) + 1} из {quizQuestions.Count}");
 
                 // Цвет вопроса
                 if (question.Type == QuestionType.Hard)
@@ -148,7 +161,7 @@ namespace QuizQuiz
 
             Console.Clear();
             Console.WriteLine("=== Результаты викторины ===");
-            Console.WriteLine($"Правильных ответов: {score}/{quizQuestions.Count + 1}");
+            Console.WriteLine($"Правильных ответов: {score}/{quizQuestions.Count}");
             Console.WriteLine($"Набрано баллов: {score}");
             Console.WriteLine("\nНажмите любую клавишу для возврата в меню...");
             Console.ReadKey();
@@ -197,7 +210,7 @@ namespace QuizQuiz
             int count = int.Parse(Console.ReadLine());
 
             List<Question> newQuestions = QuestionsGenerator(count);
-            questions.AddRange(newQuestions);
+            questions.AddRange(newQuestions); //добавить в конец списка
             SaveQuestions();
 
             Console.WriteLine($"Сгенерировано {count} новых вопросов!");
@@ -206,81 +219,91 @@ namespace QuizQuiz
 
         static List<Question> QuestionsGenerator(int count)
         {
+            // Создаем пустой список для хранения вопросов
             List<Question> generatedQuestions = new();
             Random random = new();
 
             // Подготовленные данные для генерации вопросов
             List<string> easyQuestions = new List<string>
             {
-                "Сколько будет 2+2?",
-                "Как называется столица Франции?",
-                "Какой газ преобладает в атмосфере Земли?",
-                "Кто написал 'Евгения Онегина'?",
-                "Сколько цветов у радуги?",
+                "Сколько всего даров смерти?",
+                "Как называется столица Англии?",
+                "Как зовут эльфа Малфоев?",
+                "Самое частое заклинание Гарри Поттера против противников?",
+                "Первый крестраж, уничтоженный Гарри?",
                 "Какой патронус у Гермионы Грейнджер?",
                 "Какой патронус у Гарри Поттера?"
             };
 
             List<string> hardQuestions = new List<string>
             {
-                "В каком году произошла Куликовская битва?",
-                "Какова температура плавления вольфрама?",
-                "Кто открыл закон сохранения энергии?",
-                "Как называется самая длинная река в Южной Америке?",
-                "Какой элемент обозначается химическим символом 'Hg'?"
+                "Имя матери Снейпа?",
+                "Какое существо охраняет вход в кабинет директора?",
+                "Из какихрастений состоит зелье изменения?",
+                "Как взали дедушку Володи?",
+                "Какой кентавр был изгнан из Запретного леса за то, что помогал гарри Поттеру?"
             };
 
             List<List<string>> easyAnswers = new List<List<string>>
             {
-                new List<string> {"4", "4", "5", "6"},
+                new List<string> {"3", "4", "5", "6"},
                 new List<string> {"Лондон", "Берлин", "Париж", "Мадрид"},
-                new List<string> {"Кислород", "Азот", "Углекислый газ", "Водород"},
-                new List<string> {"Пушкин", "Лермонтов", "Толстой", "Достоевский"},
-                new List<string> {"5", "7", "6", "8"},
-                new List<string> {"сокол", "выдра", "кот", "олень"},
-                new List<string> {"волк", "олень", "кот", "собака"}
+                new List<string> {"Добби", "Кикимер", "Винки", "Голем"},
+                new List<string> {"экспеллиармус", "авадакедавра", "империо", "левиоса"},
+                new List<string> {"дневник", "кольцо", "диадема", "Гарри"},
+                new List<string> { "выдра", "сокол", "кот", "олень"},
+                new List<string> { "олень", "выдра", "кот", "собака"}
             };
 
             List<List<string>> hardAnswers = new List<List<string>>
             {
-                new List<string> {"1240", "1380", "1480", "1580"},
-                new List<string> {"1000°C", "2000°C", "3000°C", "3422°C"},
-                new List<string> {"Ньютон", "Эйнштейн", "Ломоносов", "Майер"},
-                new List<string> {"Амазонка", "Нил", "Миссисипи", "Конго"},
-                new List<string> {"Золото", "Ртуть", "Серебро", "Гелий"}
+                new List<string> {"Айлин", "Эвелин", "Ирма", "Марволо"},
+                new List<string> {"горгулья", "феникс", "гиппогриф", "никто"},
+                new List<string> {"змеиная кожа", "споры грибов", "горец птичий", "их нет"},
+                new List<string> {"Марволо", "Морфин", "Том", "Реддл"},
+                new List<string> {"Флоренц", "Бэйн", "Ронан", "Фьюри"}
             };
 
-            // Метод для выбора случайного типа вопроса
-            QuestionType GenerateQuestionType()
-            {
-                return random.Next(2) == 0 ? QuestionType.Easy : QuestionType.Hard;
-            }
+            int hardQuestionsCount = 0;
+            const int MAX_HARD_QUESTIONS = 3;
 
+            // Генерируем указанное количество вопросов
             for (int i = 0; i < count; i++)
             {
-                QuestionType type = GenerateQuestionType();
+                // Проверяем, можно ли добавить сложный вопрос
+                QuestionType type;
+                if (hardQuestionsCount < MAX_HARD_QUESTIONS && random.Next(2) == 1)
+                {
+                    type = QuestionType.Hard;
+                    hardQuestionsCount++;
+                }
+                else
+                {
+                    type = QuestionType.Easy;
+                }
+
                 int questionIndex;
                 List<string> answers;
-                int correctIndex;
+                int correctIndex = 0; // Правильный ответ всегда первый в списке
                 string text;
 
-                if (type == QuestionType.Easy)
+                if (type == QuestionType.Easy )
                 {
                     questionIndex = random.Next(easyQuestions.Count);
                     text = easyQuestions[questionIndex];
                     answers = new List<string>(easyAnswers[questionIndex]);
-                    correctIndex = random.Next(answers.Count);
                 }
                 else
                 {
                     questionIndex = random.Next(hardQuestions.Count);
                     text = hardQuestions[questionIndex];
                     answers = new List<string>(hardAnswers[questionIndex]);
-                    correctIndex = random.Next(answers.Count);
                 }
 
                 // Перемешиваем ответы, чтобы правильный не всегда был на одном месте
+                // Запоминаем правильный ответ
                 string correctAnswer = answers[correctIndex];
+
                 for (int j = 0; j < answers.Count; j++)
                 {
                     int swapIndex = random.Next(answers.Count);
@@ -289,6 +312,7 @@ namespace QuizQuiz
                     answers[swapIndex] = temp;
                 }
 
+                // Находим новый индекс правильного ответа после перемешивания
                 correctIndex = -1;
                 for (int k = 0; k < answers.Count; k++)
                 {
@@ -298,11 +322,11 @@ namespace QuizQuiz
                         break;
                     }
                 }
-
+                // Создаем новый вопрос и добавляем его в список
                 Question question = new Question(text, answers, correctIndex, type);
                 generatedQuestions.Add(question);
             }
-
+            // Возвращаем сгенерированный список вопросов
             return generatedQuestions;
         }
 
@@ -344,7 +368,7 @@ namespace QuizQuiz
                 lines.Add(line);
             }
 
-            File.WriteAllLines(filePath, lines);
+            File.WriteAllLines(filePath, lines); //rewrite
         }
     }
 }
